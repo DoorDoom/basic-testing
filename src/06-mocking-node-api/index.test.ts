@@ -1,7 +1,10 @@
 // Uncomment the code below and write your tests
-// import { readFileAsynchronously, doStuffByTimeout, doStuffByInterval } from '.';
+import path from 'path';
+import { readFileAsynchronously, doStuffByTimeout, doStuffByInterval } from '.';
 
 describe('doStuffByTimeout', () => {
+  const callback = jest.fn();
+
   beforeAll(() => {
     jest.useFakeTimers();
   });
@@ -11,15 +14,21 @@ describe('doStuffByTimeout', () => {
   });
 
   test('should set timeout with provided callback and timeout', () => {
-    // Write your test here
+    const fakeSetTimeout = jest.spyOn(global, 'setTimeout');
+    doStuffByTimeout(callback, 3000);
+    expect(fakeSetTimeout).toHaveBeenCalledTimes(1);
   });
 
   test('should call callback only after timeout', () => {
-    // Write your test here
+    const fakeSetTimeout = jest.spyOn(global, 'setTimeout');
+    doStuffByTimeout(callback, 3000);
+    expect(fakeSetTimeout).toHaveBeenLastCalledWith(expect.any(Function), 3000);
   });
 });
 
 describe('doStuffByInterval', () => {
+  const callback = jest.fn();
+
   beforeAll(() => {
     jest.useFakeTimers();
   });
@@ -29,24 +38,35 @@ describe('doStuffByInterval', () => {
   });
 
   test('should set interval with provided callback and timeout', () => {
-    // Write your test here
+    doStuffByInterval(callback, 3000);
+    jest.advanceTimersByTime(9000);
+    expect(callback).toHaveBeenCalledTimes(3);
   });
 
   test('should call callback multiple times after multiple intervals', () => {
-    // Write your test here
+    const fakeSetInterval = jest.spyOn(global, 'setInterval');
+
+    doStuffByInterval(callback, 3000);
+    jest.advanceTimersByTime(9000);
+    expect(fakeSetInterval).toHaveBeenCalledWith(expect.any(Function), 3000);
+    expect(callback).toHaveBeenCalledTimes(6);
   });
 });
 
 describe('readFileAsynchronously', () => {
   test('should call join with pathToFile', async () => {
-    // Write your test here
+    const fakePath = jest.spyOn(path, 'join');
+    readFileAsynchronously('./text1.txt');
+    expect(fakePath).toHaveBeenCalled();
   });
 
   test('should return null if file does not exist', async () => {
-    // Write your test here
+    expect(readFileAsynchronously('./text1.txt')).resolves.toBeNull();
   });
 
   test('should return file content if file exists', async () => {
-    // Write your test here
+    expect(readFileAsynchronously('./text.txt')).resolves.toBe(
+      `text text there is text!`,
+    );
   });
 });
